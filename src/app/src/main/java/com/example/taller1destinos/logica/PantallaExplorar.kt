@@ -1,0 +1,21 @@
+package com.example.taller1destinos.logica
+
+import android.os.Bundle
+import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import com.example.taller1destinos.R
+
+class PantallaExplorar : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_pantalla_explorar)
+
+        //Variables
+        val txtCategoria = findViewById<TextView>(R.id.textoCategoria)
+        val bolsaRecibida = intent.getBundleExtra("bolsaCategoria")
+        txtCategoria.text = bolsaRecibida?.getString("categoria")
+    }
+}
