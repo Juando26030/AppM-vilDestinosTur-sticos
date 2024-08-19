@@ -12,52 +12,51 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taller1destinos.R
 
-class MainActivity : AppCompatActivity() , AdapterView.OnItemSelectedListener{
+class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //Variables
+        // Variables
         val spinner = findViewById<Spinner>(R.id.spinner)
         val btnExplorar = findViewById<Button>(R.id.btnExplorar)
         val btnFavoritos = findViewById<Button>(R.id.btnFavoritos)
         val btnRecomendaciones = findViewById<Button>(R.id.btnRecomendaciones)
 
-        //Lógica
         spinner.onItemSelectedListener = this
-        if(spinner.selectedItem != null){
-            logicaBotones(spinner.toString(), btnExplorar, btnFavoritos, btnRecomendaciones)
+
+        // Button click listeners (logic moved here)
+        btnExplorar.setOnClickListener {
+            val selectedItem = spinner.selectedItem?.toString() ?: ""  // Get selected item (or empty string)
+            enviarCategoria(selectedItem, PantallaExplorar::class.java)
+        }
+
+        btnFavoritos.setOnClickListener {
+            val selectedItem = spinner.selectedItem?.toString() ?: ""
+            enviarCategoria(selectedItem, PantallaFavoritos::class.java)
+        }
+
+        btnRecomendaciones.setOnClickListener {
+            val selectedItem = spinner.selectedItem?.toString() ?: ""
+            enviarCategoria(selectedItem, PantallaRecomendaciones::class.java)
         }
     }
 
-    fun logicaBotones(categoria: String, btnExplorar: Button, btnFavoritos: Button, btnRecomendaciones: Button){
-
+    private fun enviarCategoria(categoria: String, targetClass: Class<out AppCompatActivity>) {
         val bolsaCategoria = Bundle()
         bolsaCategoria.putString("categoria", categoria)
 
-        //Pantalla explorar
-        btnExplorar.setOnClickListener{
-            val peticion = Intent(this, PantallaExplorar::class.java)
-            peticion.putExtra("bolsaCategoria", bolsaCategoria)
-            startActivity(peticion)
-        }
-        //Pantalla favoritos
-        btnFavoritos.setOnClickListener{
-            val peticion = Intent(this, PantallaFavoritos::class.java)
-            peticion.putExtra("bolsaCategoria", bolsaCategoria)
-            startActivity(peticion)
-        }
-        //Pantalla recomendaciones
-        btnRecomendaciones.setOnClickListener{
-            val peticion = Intent(this, PantallaRecomendaciones::class.java)
-            peticion.putExtra("bolsaCategoria", bolsaCategoria)
-            startActivity(peticion)
-        }
+        val peticion = Intent(this, targetClass)
+        peticion.putExtra("bolsaCategoria", bolsaCategoria)
+        startActivity(peticion)
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        // Implement your logic here when an item is selected
+        // For example, you might update a UI element based on the selection
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
+        // Implement your logic here when nothing is selected
     }
 }
