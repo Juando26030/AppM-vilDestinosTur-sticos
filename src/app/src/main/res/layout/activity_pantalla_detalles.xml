@@ -7,12 +7,47 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".logica.PantallaDetalles">
-
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/txtNombre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nombre destino"
+        android:layout_above="@+id/txtPais"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:textSize="18dp"
+        android:textStyle="bold"/>
+    <TextView
+        android:id="@+id/txtPais"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pais"
+        android:layout_above="@+id/txtCategoria"
+        android:gravity="center"/>
+    <TextView
+        android:id="@+id/txtCategoria"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        tools:layout_editor_absoluteX="157dp"
-        tools:layout_editor_absoluteY="97dp" />
+        android:text="Categoría"
+        android:layout_centerInParent="true"/>
+    <TextView
+        android:id="@+id/txtPlan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Plan"
+        android:layout_centerInParent="true"
+        android:layout_below="@+id/txtCategoria"/>
+    <TextView
+        android:id="@+id/txtPrecio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Precio"
+        android:layout_centerInParent="true"
+        android:layout_below="@+id/txtPlan"/>
+    <Button
+        android:id="@+id/btnAñadir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Añadir a Favoritos"/>
 </RelativeLayout>

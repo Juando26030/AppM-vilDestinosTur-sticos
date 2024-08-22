@@ -30,28 +30,28 @@ class MainActivity : AppCompatActivity(){
     }
 
     fun logicaBotones(spinner: Spinner, btnExplorar: Button, btnFavoritos: Button, btnRecomendaciones: Button){
-        // Button click listeners (logic moved here)
+
         btnExplorar.setOnClickListener {
             val selectedItem = spinner.selectedItem?.toString() ?: ""  // Get selected item (or empty string)
-            enviarCategoria(selectedItem, PantallaExplorar::class.java)
+            enviarBolsa(selectedItem, 1, PantallaExplorar::class.java)
         }
 
         btnFavoritos.setOnClickListener {
             val selectedItem = spinner.selectedItem?.toString() ?: ""
-            enviarCategoria(selectedItem, PantallaFavoritos::class.java)
+            enviarBolsa(selectedItem, 2, PantallaExplorar::class.java)
             Log.e("Pantalla Activity", "Enviado a favoritos")
         }
 
         btnRecomendaciones.setOnClickListener {
             val selectedItem = spinner.selectedItem?.toString() ?: ""
-            enviarCategoria(selectedItem, PantallaRecomendaciones::class.java)
+            enviarBolsa(selectedItem, 3, PantallaRecomendaciones::class.java)
         }
     }
 
-    private fun enviarCategoria(categoria: String, targetClass: Class<out AppCompatActivity>) {
+    private fun enviarBolsa(categoria: String, tipo: Int, targetClass: Class<out AppCompatActivity>) {
         val bolsaCategoria = Bundle()
         bolsaCategoria.putString("categoria", categoria)
-
+        bolsaCategoria.putInt("tipo", tipo)
         val peticion = Intent(this, targetClass)
         peticion.putExtra("bolsaCategoria", bolsaCategoria)
         startActivity(peticion)

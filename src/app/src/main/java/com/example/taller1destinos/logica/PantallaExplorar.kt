@@ -37,21 +37,30 @@ class PantallaExplorar : AppCompatActivity() {
             filtroCategoria = bolsaRecibida.getString("categoria")?: ""
             Log.i(TAG, "Valor en la bolsa (categoria): $filtroCategoria") // Log entry with category value (if available)
             txtCategoria.text = "Filtrando por: " + filtroCategoria
-            setLista(filtroCategoria)
+            val tipo = bolsaRecibida.getInt("tipo")
+            if(tipo == 1){
+                definirPantallas(filtroCategoria, 1)
+            }else if(tipo == 2){
+                definirPantallas(filtroCategoria, 2)
+            }else if(tipo == 3){
+                definirPantallas(filtroCategoria, 3)
+            }
         } else {
             Log.w(TAG, "No se encontró la bolsa 'bolsaCategoria' en el intent") // Log entry if the bundle is missing
             txtCategoria.text = "Categoría no disponible"
         }
     }
 
-    fun setLista(filtro: String){
+    fun definirPantallas(filtro: String, tipo: Int){
         val lista = findViewById<ListView>(R.id.listDestinos)
         var nombresDestinos = ArrayList<String>()
-        if(filtro.equals("Todos")){
-            nombresDestinos = Data.DESTINOS_LIST.map { it.nombre } as ArrayList<String>
-        }else{
-            nombresDestinos = Data.DESTINOS_LIST.filter { it.categoria == filtro }.map { it.nombre } as ArrayList<String>
-        }
+        if(tipo == 1){
+            nombresDestinos = setListaExplorar(filtro)
+        }else if(tipo == 2){
+            nombresDestinos = setListaFavoritos()
+        }/*else if (tipo == 3){
+            nombresDestinos = setListaRecomendaciones()
+        }*/
         Log.e("PantallaFavoritosTAG", "Nombres de destinos: $nombresDestinos")
 
         val adaptador = ArrayAdapter(
@@ -64,9 +73,47 @@ class PantallaExplorar : AppCompatActivity() {
         lista.setOnItemClickListener{parent, view, position, id -> val destino = Data.DESTINOS_LIST[position]
             val intent = Intent(this, PantallaDetalles::class.java)
             val bolsaDestino = Bundle()
-            bolsaDestino.putInt("id", destino.id)
+            bolsaDestino.putInt("id", destino.id-1)
+            if(tipo == 1){
+                bolsaDestino.putInt("tipo", 1)
+            }else{
+                bolsaDestino.putInt("tipo", 2)
+            }
             intent.putExtra("bolsaDestino", bolsaDestino)
             startActivity(intent)
+        }
+    }
+
+    fun setListaExplorar(filtro: String): ArrayList<String>{
+        var nombresDestinos = ArrayList<String>()
+        if(filtro.equals("Todos")){
+            nombresDestinos = Data.DESTINOS_LIST.map { it.nombre } as ArrayList<String>
+        }else{
+            nombresDestinos = Data.DESTINOS_LIST.filter { it.categoria == filtro }.map { it.nombre } as ArrayList<String>
+        }
+        return nombresDestinos
+    }
+
+    fun setListaFavoritos(): ArrayList<String>{
+        var nombresDestinos = ArrayList<String>()
+        nombresDestinos = Data.FAVORITOS_LIST.map { it.nombre } as ArrayList<String>
+        return nombresDestinos
+    }
+
+    fun setRecomendacion(): Destino? {
+        val categoriaMasRepetida = Data.FAVORITOS_LIST
+            .groupingBy { it.categoria }
+            .eachCount()
+            .maxByOrNull { it.value }?.key ?: ""
+
+        val destinosMasFavoritos = Data.FAVORITOS_LIST
+            .filter { it.categoria == categoriaMasRepetida }
+            .map { it }
+
+        return if (destinosMasFavoritos.isNotEmpty()) {
+            destinosMasFavoritos.random()
+        } else {
+            null
         }
     }
 }
