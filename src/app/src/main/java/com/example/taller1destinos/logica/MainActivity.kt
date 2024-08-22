@@ -2,17 +2,17 @@ package com.example.taller1destinos.logica
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
+import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.Button
 import android.widget.Spinner
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.taller1destinos.R
+import org.json.JSONObject
 
-class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
+class MainActivity : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -23,8 +23,13 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val btnFavoritos = findViewById<Button>(R.id.btnFavoritos)
         val btnRecomendaciones = findViewById<Button>(R.id.btnRecomendaciones)
 
-        spinner.onItemSelectedListener = this
+        Funciones.guardarDestinosJson(this)
+        logicaBotones(spinner, btnExplorar, btnFavoritos, btnRecomendaciones)
 
+
+    }
+
+    fun logicaBotones(spinner: Spinner, btnExplorar: Button, btnFavoritos: Button, btnRecomendaciones: Button){
         // Button click listeners (logic moved here)
         btnExplorar.setOnClickListener {
             val selectedItem = spinner.selectedItem?.toString() ?: ""  // Get selected item (or empty string)
@@ -34,6 +39,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         btnFavoritos.setOnClickListener {
             val selectedItem = spinner.selectedItem?.toString() ?: ""
             enviarCategoria(selectedItem, PantallaFavoritos::class.java)
+            Log.e("Pantalla Activity", "Enviado a favoritos")
         }
 
         btnRecomendaciones.setOnClickListener {
@@ -49,14 +55,5 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val peticion = Intent(this, targetClass)
         peticion.putExtra("bolsaCategoria", bolsaCategoria)
         startActivity(peticion)
-    }
-
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        // Implement your logic here when an item is selected
-        // For example, you might update a UI element based on the selection
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-        // Implement your logic here when nothing is selected
     }
 }

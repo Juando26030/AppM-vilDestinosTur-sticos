@@ -8,25 +8,18 @@
     tools:context=".logica.MainActivity">
 
     <TextView
-        android:id="@+id/txtViewExplorar"
+        android:id="@+id/txtCategoria"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:textSize="18dp"
         android:text="Pantalla explorar"/>
 
-    <TextView
-        android:id="@+id/textoPrueba"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtViewExplorar"
-        android:text="Su categoría seleccionada fue "/>
-
-    <TextView
-        android:id="@+id/textoCategoria"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtViewExplorar"
-        android:layout_toRightOf="@+id/textoPrueba"
-        android:layout_alignParentEnd="true"
-        android:text="categoria"/>
-
+    <ListView
+        android:id="@+id/listDestinos"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/txtCategoria"
+        android:layout_alignParentBottom="true"/>
 </RelativeLayout>
