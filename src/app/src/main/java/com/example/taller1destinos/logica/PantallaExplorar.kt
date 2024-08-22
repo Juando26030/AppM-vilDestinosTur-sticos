@@ -1,5 +1,6 @@
 package com.example.taller1destinos.logica
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -16,6 +17,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taller1destinos.R
 import com.example.taller1destinos.datos.Data
+import com.example.taller1destinos.datos.Destino
 
 class PantallaExplorar : AppCompatActivity() {
     private val TAG = "PantallaExplorar" // Define a clear TAG for logging
@@ -59,10 +61,12 @@ class PantallaExplorar : AppCompatActivity() {
         )
         lista.adapter = adaptador
 
-        lista.setOnItemClickListener(object: AdapterView.OnItemClickListener{
-            override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                Toast.makeText(baseContext, position.toString(), Toast.LENGTH_SHORT).show()
-            }
-        })
+        lista.setOnItemClickListener{parent, view, position, id -> val destino = Data.DESTINOS_LIST[position]
+            val intent = Intent(this, PantallaDetalles::class.java)
+            val bolsaDestino = Bundle()
+            bolsaDestino.putInt("id", destino.id)
+            intent.putExtra("bolsaDestino", bolsaDestino)
+            startActivity(intent)
+        }
     }
 }
