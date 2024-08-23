@@ -8,6 +8,15 @@
     android:layout_height="match_parent"
     tools:context=".logica.PantallaDetalles">
     <TextView
+        android:id="@+id/txtTitulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:textSize="18dp"
+        android:text=""/>
+
+    <TextView
         android:id="@+id/txtNombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

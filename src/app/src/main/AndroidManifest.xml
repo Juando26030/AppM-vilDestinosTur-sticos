@@ -19,7 +19,7 @@
             android:name=".logica.PantallaDetalles"
             android:exported="false" />
         <activity
-            android:name=".logica.PantallaRecomendaciones"
+            android:name=".logica.PantallaRecomendacion"
             android:exported="false" />
         <activity
             android:name=".logica.PantallaFavoritos"

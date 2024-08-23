@@ -2,6 +2,7 @@ package com.example.taller1destinos.logica
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -14,6 +15,7 @@ import com.example.taller1destinos.datos.Data
 import com.example.taller1destinos.datos.Destino
 
 class PantallaDetalles : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -23,47 +25,115 @@ class PantallaDetalles : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val nombre = findViewById<TextView>(R.id.txtNombre)
-        val pais = findViewById<TextView>(R.id.txtPais)
-        val categoria = findViewById<TextView>(R.id.txtCategoria)
-        val plan = findViewById<TextView>(R.id.txtPlan)
-        val precio = findViewById<TextView>(R.id.txtPrecio)
-        val btnAñadir = findViewById<Button>(R.id.btnAñadir)
-        val bolsaRecibida = intent.getBundleExtra("bolsaDestino")
-        val idRecibido: Int
 
-        val destino: Destino
+        // Variables
+        val titulo = findViewById<TextView>(R.id.txtTitulo)
+        val btnAñadir = findViewById<Button>(R.id.btnAñadir)
+
+        // Lógica para manejar bolsaRecibida
+        val bolsaRecibida = intent.getBundleExtra("bolsaDestino")
         if (bolsaRecibida != null) {
-            idRecibido = (bolsaRecibida.getInt("id")?: "") as Int// Log entry with category value (if available)
-            if(bolsaRecibida.getInt("tipo") == 1){
-                destino = Data.DESTINOS_LIST[idRecibido]
-            }else{
-                destino = Data.FAVORITOS_LIST[idRecibido]
-            }
-            nombre.text = destino.nombre
-            pais.text = destino.pais
-            categoria.text = destino.categoria
-            plan.text = destino.plan
-            precio.text = "USD " + destino.precio.toString()
-            logicaBoton(btnAñadir, destino)
+            manejarBolsaRecibida(bolsaRecibida, btnAñadir, titulo)
+        }
+
+        // Lógica para manejar bolsaRecomendacion
+        val bolsaRecomendacion = intent.getBundleExtra("bolsaRecomendacion")
+        if (bolsaRecomendacion != null) {
+            manejarBolsaRecomendacion(titulo, btnAñadir)
         }
     }
 
-    fun logicaBoton(btnAñadir: Button, destino: Destino) {
-        btnAñadir.setOnClickListener {
-            val esFavorito = Data.FAVORITOS_LIST.contains(destino)
-            if (!esFavorito) {
-                // El destino no está en favoritos, lo agregamos
-                Data.FAVORITOS_LIST.add(destino)
-                Toast.makeText(baseContext, "Añadido a favoritos", Toast.LENGTH_SHORT).show()
-                btnAñadir.text = "Eliminar de favoritos"
-            } else {
-                // El destino ya está en favoritos, lo eliminamos
-                Data.FAVORITOS_LIST.remove(destino)
-                Toast.makeText(baseContext, "Eliminado de favoritos", Toast.LENGTH_SHORT).show()
-                btnAñadir.text = "Anadir a favoritos"
-            }
+    private fun manejarBolsaRecibida(bolsaRecibida: Bundle, btnAñadir: Button, titulo: TextView) {
+        val idRecibido = bolsaRecibida.getInt("id")
+        val destino = buscarDestinoPorId(idRecibido, bolsaRecibida.getInt("tipo"))
 
+        destino?.let {
+            mostrarDetallesDestino(it)
+            configurarBotonFavoritos(it, btnAñadir)
+            titulo.text = it.nombre // Usar el nombre del destino como título
+        } ?: run {
+            mostrarErrorYSalir(idRecibido)
         }
+    }
+
+    private fun manejarBolsaRecomendacion(titulo: TextView, btnAñadir: Button) {
+        val categoriaFavorita = encontrarCategoriaFavorita(Data.FAVORITOS_LIST)
+
+        if (categoriaFavorita == null) {
+            titulo.text = "NA"
+            Toast.makeText(this, "No tienes destinos favoritos para recomendar", Toast.LENGTH_SHORT).show()
+            finish()
+        } else {
+            val destinoRecomendado = seleccionarDestinoPorCategoriaEnFavoritos(categoriaFavorita)
+
+            destinoRecomendado?.let {
+                mostrarDetallesDestino(it)
+                btnAñadir.visibility = View.GONE // Ocultar botón en recomendaciones
+                titulo.text = "Recomendando por $categoriaFavorita"
+            } ?: run {
+                Toast.makeText(this, "No se encontró un destino recomendado", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        }
+    }
+
+    private fun buscarDestinoPorId(id: Int, tipo: Int): Destino? {
+        return if (tipo == 1) {
+            Data.DESTINOS_LIST.find { it.id == id }
+        } else {
+            Data.FAVORITOS_LIST.find { it.id == id }
+        }
+    }
+
+    private fun mostrarDetallesDestino(destino: Destino) {
+        findViewById<TextView>(R.id.txtNombre).text = destino.nombre
+        findViewById<TextView>(R.id.txtPais).text = destino.pais
+        findViewById<TextView>(R.id.txtCategoria).text = destino.categoria
+        findViewById<TextView>(R.id.txtPlan).text = destino.plan
+        findViewById<TextView>(R.id.txtPrecio).text = "USD ${destino.precio}"
+    }
+
+    private fun configurarBotonFavoritos(destino: Destino, btnAñadir: Button) {
+        btnAñadir.text = if (Data.FAVORITOS_LIST.contains(destino)) {
+            "Eliminar de favoritos"
+        } else {
+            "Añadir a favoritos"
+        }
+
+        btnAñadir.setOnClickListener {
+            toggleFavorito(destino, btnAñadir)
+        }
+    }
+
+    private fun toggleFavorito(destino: Destino, btnAñadir: Button) {
+        if (Data.FAVORITOS_LIST.contains(destino)) {
+            Data.FAVORITOS_LIST.remove(destino)
+            Toast.makeText(this, "Eliminado de favoritos", Toast.LENGTH_SHORT).show()
+            btnAñadir.text = "Añadir a favoritos"
+        } else {
+            Data.FAVORITOS_LIST.add(destino)
+            Toast.makeText(this, "Añadido a favoritos", Toast.LENGTH_SHORT).show()
+            btnAñadir.text = "Eliminar de favoritos"
+        }
+    }
+
+    private fun encontrarCategoriaFavorita(favoritos: List<Destino>): String? {
+        if (favoritos.isEmpty()) return null
+
+        val categorias = favoritos.groupingBy { it.categoria }.eachCount()
+        val maxRepeticiones = categorias.values.maxOrNull() ?: 0
+        val categoriasFavoritas = categorias.filterValues { it == maxRepeticiones }.keys
+        return categoriasFavoritas.random() // Elige una categoría al azar si hay empate
+    }
+
+    private fun seleccionarDestinoPorCategoriaEnFavoritos(categoria: String): Destino? {
+        // Filtra los destinos en favoritos por la categoría más repetida y selecciona uno al azar
+        return Data.FAVORITOS_LIST.filter { it.categoria == categoria }.randomOrNull()
+    }
+
+    private fun mostrarErrorYSalir(id: Int) {
+        Log.e("PantallaDetalles", "Destino con id $id no encontrado")
+        Toast.makeText(this, "Destino no encontrado", Toast.LENGTH_SHORT).show()
+        finish() // Cierra la actividad si no se encuentra el destino
     }
 }
