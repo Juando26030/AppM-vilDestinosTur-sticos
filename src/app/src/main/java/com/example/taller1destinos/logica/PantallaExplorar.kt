@@ -12,39 +12,48 @@ import com.example.taller1destinos.datos.Data
 import com.example.taller1destinos.datos.Destino
 
 class PantallaExplorar : AppCompatActivity() {
-    private val TAG = "PantallaExplorar" // Define a clear TAG for logging
+    private val TAG = "PantallaExplorar"
+    private lateinit var txtCategoria: TextView
+    private lateinit var lista: ListView
+    private var tipo: Int = 1
+    private var filtroCategoria: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pantalla_explorar)
 
-        Log.d(TAG, "Entró a la pantalla Explorar") // Log entry for entering the activity
+        Log.d(TAG, "Entró a la pantalla Explorar")
 
         // Variables
-        val txtCategoria = findViewById<TextView>(R.id.txtCategoria)
+        txtCategoria = findViewById(R.id.txtCategoria)
+        lista = findViewById(R.id.listDestinos)
         val bolsaRecibida = intent.getBundleExtra("bolsaCategoria")
-        val filtroCategoria: String
 
         if (bolsaRecibida != null) {
             filtroCategoria = bolsaRecibida.getString("categoria") ?: ""
-            Log.i(TAG, "Valor en la bolsa (categoria): $filtroCategoria") // Log entry with category value (if available)
+            tipo = bolsaRecibida.getInt("tipo")
+            Log.i(TAG, "Valor en la bolsa (categoria): $filtroCategoria")
 
-            val tipo = bolsaRecibida.getInt("tipo")
             if (tipo == 1) {
                 txtCategoria.text = "Filtrando por: $filtroCategoria"
-                definirPantallas(filtroCategoria, 1)
             } else if (tipo == 2) {
                 txtCategoria.text = "Destinos favoritos"
-                definirPantallas(filtroCategoria, 2)
             }
+
+            definirPantallas(filtroCategoria, tipo)
         } else {
-            Log.w(TAG, "No se encontró la bolsa 'bolsaCategoria' en el intent") // Log entry if the bundle is missing
+            Log.w(TAG, "No se encontró la bolsa 'bolsaCategoria' en el intent")
             txtCategoria.text = "Categoría no disponible"
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Actualiza la lista cada vez que se vuelve a esta pantalla
+        definirPantallas(filtroCategoria, tipo)
+    }
+
     fun definirPantallas(filtro: String, tipo: Int) {
-        val lista = findViewById<ListView>(R.id.listDestinos)
         val destinos: List<Destino> = if (tipo == 1) {
             setListaExplorar(filtro)
         } else {
