@@ -53,6 +53,20 @@
         android:text="Precio"
         android:layout_centerInParent="true"
         android:layout_below="@+id/txtPlan"/>
+    <TextView
+        android:id="@+id/txtClima"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clima"
+        android:layout_centerInParent="true"
+        android:layout_below="@+id/txtPrecio"/>
+    <TextView
+        android:id="@+id/txtTemperatura"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Temperatura"
+        android:layout_centerInParent="true"
+        android:layout_below="@+id/txtClima"/>
     <Button
         android:id="@+id/btnAñadir"
         android:layout_width="match_parent"

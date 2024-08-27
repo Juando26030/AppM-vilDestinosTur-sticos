@@ -13,6 +13,11 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.taller1destinos.R
 import com.example.taller1destinos.datos.Data
 import com.example.taller1destinos.datos.Destino
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 class PantallaDetalles : AppCompatActivity() {
 
@@ -25,17 +30,14 @@ class PantallaDetalles : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
         // Variables
         val titulo = findViewById<TextView>(R.id.txtTitulo)
         val btnAñadir = findViewById<Button>(R.id.btnAñadir)
-
         // Lógica para manejar bolsaRecibida
         val bolsaRecibida = intent.getBundleExtra("bolsaDestino")
         if (bolsaRecibida != null) {
             manejarBolsaRecibida(bolsaRecibida, btnAñadir, titulo)
         }
-
         // Lógica para manejar bolsaRecomendacion
         val bolsaRecomendacion = intent.getBundleExtra("bolsaRecomendacion")
         if (bolsaRecomendacion != null) {
@@ -47,7 +49,39 @@ class PantallaDetalles : AppCompatActivity() {
         val idRecibido = bolsaRecibida.getInt("id")
         val destino = buscarDestinoPorId(idRecibido, bolsaRecibida.getInt("tipo"))
 
+        //Obtener objeto de destinos traducidos a Ingles para hacer la peticion a la API de clima
+        val destinosTraducidosObj = JSONObject(Funciones.loadJSONFromAsset(this,"destinos-traducidos.json"))
+        val destinosTraducidos = destinosTraducidosObj.getJSONObject("traduccion")
+
         destino?.let {
+
+            //Obtener pais traducido
+            var paisTraducido = destinosTraducidos.getString(destino.pais)
+
+            //Definir URL de la peticion para realizar query con el pais traducido
+            val urlApi = "http://api.weatherapi.com/v1/current.json?key=205847083bcd44bea3f205020242608&q=" + paisTraducido
+
+            //Usar coroutine para realizar peticion en un hilo separado del principal
+            CoroutineScope(Dispatchers.IO).launch {
+                //Obtener clima
+                val weather = Funciones.consultarClima(this, urlApi)[0]
+                //Obtener temperatura
+                val temperature = Funciones.consultarClima(this, urlApi)[1]
+                if (weather != null) {
+                    Log.d("api", weather)
+                }else{
+                    Log.i("api","Error obteniendo el clima")
+                }
+
+                //Actualizar textos del clima una vez finalizada la peticion
+                withContext(Dispatchers.Main) {
+                    val clima = findViewById<TextView>(R.id.txtClima)
+                    val temperatura = findViewById<TextView>(R.id.txtTemperatura)
+                    clima.text = "Clima: " + weather
+                    temperatura.text = "Temperatura: " + temperature
+                }
+            }
+
             mostrarDetallesDestino(it)
             configurarBotonFavoritos(it, btnAñadir)
             titulo.text = it.nombre // Usar el nombre del destino como título
@@ -59,6 +93,10 @@ class PantallaDetalles : AppCompatActivity() {
     private fun manejarBolsaRecomendacion(titulo: TextView, btnAñadir: Button) {
         val categoriaFavorita = encontrarCategoriaFavorita(Data.FAVORITOS_LIST)
 
+        //Obtener objeto de destinos traducidos a Ingles para hacer la peticion a la API de clima
+        val destinosTraducidosObj = JSONObject(Funciones.loadJSONFromAsset(this,"destinos-traducidos.json"))
+        val destinosTraducidos = destinosTraducidosObj.getJSONObject("traduccion")
+
         if (categoriaFavorita == null) {
             titulo.text = "NA"
             Toast.makeText(this, "No tienes destinos favoritos para recomendar", Toast.LENGTH_SHORT).show()
@@ -67,6 +105,33 @@ class PantallaDetalles : AppCompatActivity() {
             val destinoRecomendado = seleccionarDestinoPorCategoriaEnFavoritos(categoriaFavorita)
 
             destinoRecomendado?.let {
+                //Obtener pais traducido
+                var paisTraducido = destinosTraducidos.getString(destinoRecomendado.pais)
+
+                //Definir URL de la peticion para realizar query con el pais traducido
+                val urlApi = "http://api.weatherapi.com/v1/current.json?key=205847083bcd44bea3f205020242608&q=" + paisTraducido
+
+                //Usar coroutine para realizar peticion en un hilo separado del principal
+                CoroutineScope(Dispatchers.IO).launch {
+                    //Obtener clima
+                    val weather = Funciones.consultarClima(this, urlApi)[0]
+                    //Obtener temperatura
+                    val temperature = Funciones.consultarClima(this, urlApi)[1]
+                    if (weather != null) {
+                        Log.d("api", weather)
+                    }else{
+                        Log.i("api","Error obteniendo el clima")
+                    }
+
+                    //Actualizar textos del clima
+                    withContext(Dispatchers.Main) {
+                        val clima = findViewById<TextView>(R.id.txtClima)
+                        val temperatura = findViewById<TextView>(R.id.txtTemperatura)
+                        clima.text = "Clima: " + weather
+                        temperatura.text = "Temperatura: " + temperature
+                    }
+                }
+
                 mostrarDetallesDestino(it)
                 btnAñadir.visibility = View.GONE // Ocultar botón en recomendaciones
                 titulo.text = "Recomendando por $categoriaFavorita"
